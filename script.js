@@ -36,7 +36,6 @@ A whole game consists of multiple levels that the player must complete. A level 
 */
 
 /* READING A LEVEL */
-
 class Level {
   constructor(plan) {
     // Rows of the plan
@@ -53,17 +52,25 @@ class Level {
     // Actors - all moving elements
     this.startActors = [];
 
-    
+    // Background will be an array of arrays of strings
     this.rows = rows.map((row, y) => {
-      return row.map((char, x) => {
-        let type = levelChars[char];
 
+      // We're getting x- and y- coordinates from second argument of `map`
+      return row.map((char, x) => {
+
+        // Use `levelChars` object to interpret the character
+        let type = levelChars[char];
+        
+        // If it's a string just return it
         if (typeof type === 'string') return type;
 
+        // If type is an actor class, `create` method is used to create an object
         this.startActors.push(
+          // The position of the actor is stored as `Vec` object
           type.create(new Vec(x, y), char)
         );
 
+        // We replace actor with "empty" for the background square
         return 'empty';
       });
     });
