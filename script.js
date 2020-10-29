@@ -115,3 +115,30 @@ class Vec {
     return new Vec(this.x * factor, this.y * factor);
   }
 }
+
+/* PLAYER */
+class Player {
+  constructor(pos, speed) {
+    this.pos = pos;
+
+    // `speed` is used to simulate momentum and gravity
+    this.speed = speed;
+  }
+
+  get type() { return "player"; } 
+
+  static create(pos) {
+    return new Player(
+      // pos: Because a player is one-and-a-half squares high, its initial
+      // position is set to be half a square above the position where @
+      // appeared   
+      pos.plus(new Vec(0, -0.5)),
+      // Initial speed i zero
+      new Vec(0, 0)
+    );
+  }
+}
+
+// The `size` property is the same for all instances of `Player`,
+// we store it on its prototype
+Player.prototype.size = new Vec(0.8, 1.5);
