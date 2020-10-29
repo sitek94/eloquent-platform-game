@@ -76,3 +76,23 @@ class Level {
     });
   }
 }
+
+/* STATE - tracks the state of running game */
+class State {
+  constructor(level, actors, status) {
+    this.level = level;
+    this.actors = actors;
+
+    // The `status` will switch to "lost" or "won" when game
+    // has ended
+    this.status = status;
+  }
+
+  static start(level) {
+    return new State(level, level.startActors, "playing");
+  }
+
+  get player() {
+    return this.actors.find(actor => actor.type === "player");
+  }
+}
