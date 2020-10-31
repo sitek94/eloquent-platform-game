@@ -213,7 +213,8 @@ const levelChars = {
 
 /* ========================= DRAWING ========================== */
 
-// A helper function that provides a succinct
+// A helper function that provides a succinct way to create an element
+// and givi it some attributes and child nodes
 function elt(name, attrs, ...children) {
   let dom = document.createElement(name);
 
