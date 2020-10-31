@@ -247,6 +247,11 @@ class DOMDisplay {
   clear() { this.dom.remove(); }
 }
 
+// Our coordinates and sizes are tracked in grid units, where a size or 
+// distance of 1 means one grid block. When setting pixel sizes, we will 
+// have to scale these coordinates up—everything in the game would be 
+// ridiculously small at a single pixel per square. The scale constant gives 
+// the number of pixels that a single unit takes up on the screen.
 const SCALE = 20;
 
 function drawGrid(level) {
