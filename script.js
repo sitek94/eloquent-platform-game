@@ -1,24 +1,6 @@
-let Player, Coin, Lava;
-
-const levelChars = {
-  // Empty space
-  '.': 'empty',
-  // Walls
-  '#': 'wall',
-  // Lava
-  '+': 'lava',
-  // Player's starting position
-  '@': Player,
-  // Coins
-  o: Coin,
-  // Block of lava that moves back and forth horizontally
-  '=': Lava,
-  // Vertically moving blobs
-  '|': Lava,
-  // Dripping lava - vertically moving lava that doesn’t bounce back and forth but only
-  // moves down, jumping back to its start position when it hits the floor.
-  v: Lava,
-};
+/* 
+A whole game consists of multiple levels that the player must complete. A level is completed when all coins have been collected. If the player touches lava, the current level is restored to its starting position, and the player may try again.
+*/
 
 let simpleLevelPlan = `
 ......................
@@ -30,10 +12,6 @@ let simpleLevelPlan = `
 ......#++++++++++++#..
 ......##############..
 ......................`;
-
-/* 
-A whole game consists of multiple levels that the player must complete. A level is completed when all coins have been collected. If the player touches lava, the current level is restored to its starting position, and the player may try again.
-*/
 
 /* READING A LEVEL */
 class Level {
@@ -208,3 +186,24 @@ class Coin {
 }
 
 Coin.prototype.size = new Vec(0.6, 0.6);
+
+/* LEVEL CHARACTERS */
+const levelChars = {
+  // Empty space
+  '.': 'empty',
+  // Walls
+  '#': 'wall',
+  // Lava
+  '+': 'lava',
+  // Player's starting position
+  '@': Player,
+  // Coins
+  o: Coin,
+  // Block of lava that moves back and forth horizontally
+  '=': Lava,
+  // Vertically moving blobs
+  '|': Lava,
+  // Dripping lava - vertically moving lava that doesn’t bounce back and forth but only
+  // moves down, jumping back to its start position when it hits the floor.
+  v: Lava,
+};
