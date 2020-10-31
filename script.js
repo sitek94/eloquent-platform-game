@@ -299,3 +299,21 @@ function drawActors(actors) {
     })
   );
 }
+
+// `syncState` method is used to make the display show a given state.
+DOMDisplay.prototype.syncState = function(state) {
+
+  // Remove the old actors graphics (if any)
+  if (this.actorLayer) this.actorLayer.remove();
+
+  // Redraw the acotrs in their new positions
+  this.actorLayer = drawActors(state.actors);
+  this.dom.appendChild(this.actorLayer);
+
+  // By adding the level's current status as class name to the wrapper
+  // we can style the player actor slighly differently when the game is
+  // won or lost 
+  this.dom.className = `game ${state.status}`;
+  
+  this.scrollPlayerIntoView(state);
+}
