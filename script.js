@@ -13,7 +13,7 @@ let simpleLevelPlan = `
 ......##############..
 ......................`;
 
-/* READING A LEVEL */
+/* ========================= READING A LEVEL ========================== */
 class Level {
   constructor(plan) {
     // Rows of the plan
@@ -74,6 +74,9 @@ class State {
     return this.actors.find(actor => actor.type === "player");
   }
 }
+
+
+/* ========================= ACTORS ========================== */
 
 /* VEC - creates two-dimensional vector */
 class Vec {
@@ -207,3 +210,20 @@ const levelChars = {
   // moves down, jumping back to its start position when it hits the floor.
   v: Lava,
 };
+
+/* ========================= DRAWING ========================== */
+
+// A helper function that provides a succinct
+function elt(name, attrs, ...children) {
+  let dom = document.createElement(name);
+
+  for (let attr of Object.keys(attrs)) {
+    dom.setAttribute(attr, attrs[attr]);
+  }
+
+  for (let child of children) {
+    dom.appendChild(child);
+  }
+
+  return dom;
+}
