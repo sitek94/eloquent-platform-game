@@ -280,3 +280,22 @@ function drawGrid(level) {
     )
   );
 }
+
+function drawActors(actors) {
+  return elt(
+    "div",
+    {},
+    ...actors.map(({ type, size, pos }) => {
+       // Draw each actor by creating a DOM element
+      let rect = elt("div", { class: `actor ${type}`});
+
+      // Set element's position and size based on the actor's properties
+      rect.style.width = `${size.x * scale}px`;
+      rect.style.height = `${size.y * scale}px`;
+      rect.style.left = `${pos.x * scale}px`;
+      rect.style.top = `${pos.y * scale}px`;
+
+      return rect;
+    })
+  );
+}
