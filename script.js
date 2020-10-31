@@ -247,3 +247,31 @@ class DOMDisplay {
   clear() { this.dom.remove(); }
 }
 
+const SCALE = 20;
+
+function drawGrid(level) {
+  // Background is drawn as <table> element
+  return elt(
+    'table',
+    {
+      class: 'background',
+      style: `width: ${level.width * SCALE}px`,
+    },
+
+    // `rows` property of the level are drawn as <tr>
+    ...level.rows.map(row =>
+      elt(
+        'tr',
+        { style: `height: ${SCALE}px` },
+
+        // Each character of the row is drawn as <td> element
+        // and its type is used as class name.
+        ...row.map(type => 
+          elt(
+            'td', 
+            { class: type }
+          ))
+      )
+    )
+  );
+}
