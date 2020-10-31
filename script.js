@@ -314,6 +314,47 @@ DOMDisplay.prototype.syncState = function(state) {
   // we can style the player actor slighly differently when the game is
   // won or lost 
   this.dom.className = `game ${state.status}`;
-  
+
   this.scrollPlayerIntoView(state);
 }
+
+// `scrollPlayerIntoView` method ensures that if the level is sticking out
+// outside of the viewport, we scroll that viewport to make sure the player
+// is near its center
+DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
+  let width = this.dom.clientWidth;
+  let height = this.dom.clientHeight;
+  let margin = width / 3;
+
+  // The viewport
+  let left = this.dom.scrollLeft, right = left + width;
+  let top = this.dom.scrollTop, bottom = top + height;
+
+  let player = state.player;
+  let center = player.pos
+    // To find the actor's center, we add its position (its top left corner) 
+    // and half its size. That is the center in level coordinates.
+    .plus(player.size.times(0.5))
+    // We need it in pixel coordinates, so we multiply it by scale
+    .times(scale);
+
+  // A series of checks verifies that the player position isn't outside,
+  // of the allow range.
+  if (center.x < left + margin) {
+    this.dom.scrollLeft = center.x - margin;
+  } else if (center.x > right - margin) {
+    this.dom.scrollLeft = center.x + margin - width;
+  }
+
+  if (center.y < top + margin) {
+    this.dom.scrollTop = center.y - margin;
+  } else if (center.y > bottom - margin) {
+    this.dom.scrollTop = center.y + margin - height;
+  }
+
+  // It would have been slightly simpler to always try to scroll the player 
+  // to the center of the viewport. But this creates a rather jarring 
+  // effect. As you are jumping, the view will constantly shift up and down. 
+  // It is more pleasant to have a “neutral” area in the middle of the 
+  // screen where you can move around without causing any scrolling.
+};
