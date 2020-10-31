@@ -142,3 +142,30 @@ class Player {
 // The `size` property is the same for all instances of `Player`,
 // we store it on its prototype
 Player.prototype.size = new Vec(0.8, 1.5);
+
+/* LAVA */
+class Lava {
+  constructor(pos, speed, reset) {
+    this.pos = pos;
+    this.speed = speed;
+
+    // Dynamic lava moves along at its current speed until it hits
+    // an obstacle. If it has a reset property it will jump back
+    // to its starting position (dripping). 
+    // Otherwise, it will invert its speed and continue in the other
+    // direction (bouncing).
+    this.reset = reset;
+  }
+
+  get type() { return "lava"; }
+
+  // Initialize the object differently depending on the character 
+  // it is based on 
+  static create(pos, char) {
+    if (char === "=") return new Lava(pos, new Vec(2, 0));
+    else if (char === "|") return new Lava(pos, new Vec(0, 2));
+    else if (char === "v") return new Lava(pos, new Vec(0, 3), pos);
+  }
+}
+
+Lava.prototype.size = new Vec(1, 1);
