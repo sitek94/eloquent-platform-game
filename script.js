@@ -228,3 +228,22 @@ function elt(name, attrs, ...children) {
 
   return dom;
 }
+
+// A display is created by giving it a parent element to which it should 
+// append itself and a level object
+class DOMDisplay {
+  constructor(parent, level) {
+    // The level's background grid, which never changes is drawn once.
+    this.dom = elt("div", { class: "game" }, drawGrid(level));
+
+    // Actors are redrawn every time the display is updated with a given
+    // state and the `actorLayer` will be used to track the element that 
+    // holds the actors so that they can be easily removed and replaced.
+    this.actorLayer = null;
+    
+    parent.appendChild(this.dom);
+  }
+
+  clear() { this.dom.remove(); }
+}
+
