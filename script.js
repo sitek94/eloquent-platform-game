@@ -290,10 +290,10 @@ function drawActors(actors) {
       let rect = elt("div", { class: `actor ${type}`});
 
       // Set element's position and size based on the actor's properties
-      rect.style.width = `${size.x * scale}px`;
-      rect.style.height = `${size.y * scale}px`;
-      rect.style.left = `${pos.x * scale}px`;
-      rect.style.top = `${pos.y * scale}px`;
+      rect.style.width = `${size.x * SCALE}px`;
+      rect.style.height = `${size.y * SCALE}px`;
+      rect.style.left = `${pos.x * SCALE}px`;
+      rect.style.top = `${pos.y * SCALE}px`;
 
       return rect;
     })
@@ -336,7 +336,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
     // and half its size. That is the center in level coordinates.
     .plus(player.size.times(0.5))
     // We need it in pixel coordinates, so we multiply it by scale
-    .times(scale);
+    .times(SCALE);
 
   // A series of checks verifies that the player position isn't outside,
   // of the allow range.
@@ -358,3 +358,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
   // It is more pleasant to have a “neutral” area in the middle of the 
   // screen where you can move around without causing any scrolling.
 };
+
+let simpleLevel = new Level(simpleLevelPlan);
+let display = new DOMDisplay(document.body, simpleLevel);
+display.syncState(State.start(simpleLevel));
