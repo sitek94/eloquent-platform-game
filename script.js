@@ -169,3 +169,42 @@ class Lava {
 }
 
 Lava.prototype.size = new Vec(1, 1);
+
+/* COIN */
+class Coin {
+  // To liven up the game a little, coins are given `wobble` property,
+  // a slight vertical back-and-forth motion.
+  constructor(pos, basePos, wobble) {
+    this.pos = pos;
+    
+    // `basePos` and `wobble` determine the coin's actual position
+    // that is stored in `pos` 
+    this.basePos = basePos;
+    // Tracks the phase of bouncing motion.
+    this.wobble = wobble;
+  }
+
+  get type() { return "coin"; }
+
+  static create(pos) {
+    let basePos = pos.plus(new Vec(0.2, 0.1));
+
+    return new Coin(
+      basePos, 
+      basePos, 
+      // Math.sin gives us the y-coordinate of a point on a circle.
+      // That coordinate goes back and forth in a smooth waveform as
+      // we move along the circle, which makes the sine function useful
+      // for modeling a wavy motion.
+
+      // To avoid a situation where all coins move up and down 
+      // synchronously, the starting phase of each coin is randomized. The 
+      // phase of Math.sin’s wave, the width of a wave it produces, is 2π. 
+      // We multiply the value returned by Math.random by that number to 
+      // give the coin a random starting position on the wave.
+      Math.random() * Math.PI * 2
+    );
+  }
+}
+
+Coin.prototype.size = new Vec(0.6, 0.6);
