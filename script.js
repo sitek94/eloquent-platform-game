@@ -359,15 +359,11 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
   // screen where you can move around without causing any scrolling.
 };
 
-let simpleLevel = new Level(simpleLevelPlan);
-let display = new DOMDisplay(document.body, simpleLevel);
-display.syncState(State.start(simpleLevel));
-
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
 // touches a grid element of the given type.
-level.prototype.touches = function(pos, size, type) {
+Level.prototype.touches = function(pos, size, type) {
   var xStart = Math.floor(pos.x);
   var yStart = Math.floor(pos.x)
   
@@ -494,7 +490,7 @@ Coin.prototype.update = function(time) {
   // The wobble property is incremented to track time and then is used as an 
   // argument to Math.sin to find the new position on the wave.
   let wobble = this.wobble + time * WOBBLE_SPEED;
-  let wobblePos = Math.sin(wobble) * WOBBLE_SPEED;
+  let wobblePos = Math.sin(wobble) * WOBBLE_DIST;
 
   //  The coin’s current position is then computed from its base 
   // position and an offset based on this wave.
@@ -552,3 +548,89 @@ Player.prototype.update = function(time, state, keys) {
 
   return new Player(pos, new Vec(xSpeed, ySpeed));
 };
+
+
+/* ========================= TRACKING KEYS ========================== */
+
+function trackKeys(keys) {
+  let down = Object.create(null);
+
+  // The same handler function is used for both event types. 
+  function track(event) {
+    // It looks at the event object’s type property to determine whether 
+    // the key state should be updated to true ("keydown") or false ("keyup").
+    if (keys.includes(event.key)) {
+      down[event.key] = event.type === 'keydown';
+
+      event.preventDefault();
+    }
+  }
+
+  window.addEventListener('keydown', track);
+  window.addEventListener('keyup', track);
+
+  return down;
+}
+
+const arrowKeys = trackKeys(['ArrowLeft', 'ArrowRight', 'ArrowUp']);
+
+
+/* ========================= RUNNING THE GAME ========================== */
+
+function runAnimation(frameFunc) {
+  let lastTime = null;
+
+  function frame(time) {
+    if (lastTime != null) {
+      let timeStep = Math.min(time - lastTime, 100) / 1000;
+      
+      if (frameFunc(timeStep) === false) return;
+    }
+    lastTime = time;
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function runLevel(level, Display) {
+  let display = new Display(document.body, level);
+
+  let state = State.start(level);
+
+  let ending = 1;
+
+  return new Promise(resolve => {
+    runAnimation(time => {
+      state = state.update(time, arrowKeys);
+
+      display.syncState(state);
+
+      if (state.status === 'playing') {
+        return true;
+      } else if (ending > 0) {
+        ending -= time;
+
+        return true;
+      } else {
+        display.clear();
+
+        resolve(state.status);
+
+        return false;
+      }
+    });
+  });
+}
+
+async function runGame(plans, Display) {
+  for (let level = 0; level < plans.length;) {
+    let status = await runLevel(new Level(plans[level]), Display);
+
+    if (status === 'won') level++;
+  }
+
+  console.log(`You've won!`);
+}
+
+runGame(GAME_LEVELS, DOMDisplay);
