@@ -365,7 +365,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
 // touches a grid element of the given type.
 Level.prototype.touches = function(pos, size, type) {
   var xStart = Math.floor(pos.x);
-  var yStart = Math.floor(pos.x)
+  var yStart = Math.floor(pos.y)
   
   var xEnd = Math.ceil(pos.x + size.x);
   var yEnd = Math.ceil(pos.y + size.y);
