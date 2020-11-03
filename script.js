@@ -362,3 +362,97 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
 let simpleLevel = new Level(simpleLevelPlan);
 let display = new DOMDisplay(document.body, simpleLevel);
 display.syncState(State.start(simpleLevel));
+
+/* ========================= MOTION AND COLLISION ========================== */
+
+// This method tells us whether a rectangle (specified by a position and a size) 
+// touches a grid element of the given type.
+level.prototype.touches = function(pos, size, type) {
+  var xStart = Math.floor(pos.x);
+  var yStart = Math.floor(pos.x)
+  
+  var xEnd = Math.ceil(pos.x + size.x);
+  var yEnd = Math.ceil(pos.y + size.y);
+
+  for (var y = yStart; y < yEnd; y++) {
+    for (var x = xStart; x < xEnd; x++) {
+      let isOutside = x < 0 || x >= this.width ||
+                      y < 0 || y >= this.height;
+
+      let here = isOutside ? 'wall' : this.rows[y][x];
+
+      if (here === type) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The state update method uses touches to figure out whether the player is touching lava.
+ * 
+ * @param {Number} time a time step 
+ * @param {Array} keys a data structure that tells it which keys are being held down
+ * 
+ */
+State.prototype.update = function(time, keys) {
+
+  // Call the update method on all actors, producing an array of updated actors.
+  let actors = this.actors
+    // The actors also get the time step, the keys, and the state, 
+    // so that they can base their update on those. 
+
+    // Only the player will actually read keys, since that’s 
+    // the only actor that’s controlled by the keyboard.
+    .map(actor => actor.update(time, this, keys));
+
+  let newState = new State(this.level, actors, this.status);
+
+  // If the game is already over, no further processing has to be done.
+  if (newState.status !== 'playing') return newState;
+
+  let player = newState.player;
+
+  // Test whether the player is touching background lava. 
+  if (this.level.touches(player.pos, player.size, 'lava')) {
+    return new State(this.level, actors, 'lost');
+  }
+
+  // Finally, if the game really is still going on, 
+  // it sees whether any other actors overlap the player.
+  for (let actor of actors) {
+    if (actor !== player && overlap(actor, player)) {
+
+      // If any actor does overlap, its collide method gets a chance to update the state. 
+      newState = actor.collide(newState);
+    }
+  }
+
+  return newState;
+}
+
+// Overlap between actors is detected with the overlap function. 
+function overlap(actor1, actor2) {
+  // Actors are overlapping when they overlap both along the x-axis and y-axis.
+  return actor1.pos.x + actor1.size.x > actor2.pos.x &&
+         actor1.pos.x < actor2.pos.x + actor2.size.x &&
+         actor1.pos.y + actor1.size.y > actor2.pos.y &&
+         actor1.pos.y < actor2.pos.y + actor2.size.y;
+}
+
+// Touching a lava actor sets the game status to "lost".
+Lava.prototype.collide = function(state) {
+  return new State(state.level, state.actors, 'lost');
+}
+
+Coin.prototype.collide = function(state) {
+
+  //  Coins vanish when you touch them
+  let filtered = state.actors.filter(a => a !== this);
+
+  let status = state.status;
+
+  // Set the status to "won" when they are the last coin of the level.
+  if (!filtered.some(a => a.type === 'coin')) status = 'won';
+
+  return new State(state.level, filtered, status);
+}
