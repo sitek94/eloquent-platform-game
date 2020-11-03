@@ -456,3 +456,99 @@ Coin.prototype.collide = function(state) {
 
   return new State(state.level, filtered, status);
 }
+
+
+/* ========================= ACTOR UPDATES ========================== */
+
+// Lava update
+Lava.prototype.update = function(time, state) {
+
+  // Compute a new position by adding the product of the time step and the current speed 
+  // to its old position. 
+  let newPost = this.pos.plus(this.speed.times(time)); 
+
+  // If no obstacle blocks that new position, it moves there.  
+  if (!state.level.touches(newPost, this.size, 'wall')) {
+    return new Lava(newPost, this.speed, this.reset);
+
+    // If there is an obstacle, the behavior depends on the type of the lava block
+    // — dripping lava has a reset position, to which it jumps back when it hits something.
+  } else if (this.reset) {
+    return new Lava(this.reset, this.speed, this.reset);
+
+    // Bouncing lava inverts its speed by multiplying it by -1 
+    // so that it starts moving in the opposite direction.
+  } else {
+    return new Lava(this.pos, this.speed.times(-1));
+  }
+};
+
+const WOBBLE_SPEED = 8, WOBBLE_DIST = 0.07;
+
+// Coin update
+Coin.prototype.update = function(time) {
+
+  // Coins use their update method to wobble. They ignore collisions with 
+  // the grid since they are simply wobbling around inside of their own square.
+
+  // The wobble property is incremented to track time and then is used as an 
+  // argument to Math.sin to find the new position on the wave.
+  let wobble = this.wobble + time * WOBBLE_SPEED;
+  let wobblePos = Math.sin(wobble) * WOBBLE_SPEED;
+
+  //  The coin’s current position is then computed from its base 
+  // position and an offset based on this wave.
+  return new Coin(this.basePos.plus(new Vec(0, wobblePos)),
+                  this.basePos, wobble);
+};
+
+const PLAYER_X_SPEED = 7;
+const GRAVITY = 30;
+const JUMP_SPEED = 17;
+
+// Player update
+Player.prototype.update = function(time, state, keys) {
+
+  // x-axis
+  let xSpeed = 0;
+
+  // The horizontal motion is computed based on the state 
+  // of the left and right arrow keys. 
+  if (keys.ArrowLeft) xSpeed -= PLAYER_X_SPEED;
+  if (keys.ArrowRight) xSpeed += PLAYER_X_SPEED;
+
+  let pos = this.pos;
+
+  let movedX = pos.plus(new Vec(xSpeed * time, 0));
+
+  // When there’s no wall blocking the new position created by 
+  // this motion, it is used. Otherwise, the old position is kept.
+  if (!state.level.touches(movedX, this.size, 'wall')) {
+    pos = movedX;
+  }
+
+  // y-axis
+  // Vertical motion works in a similar way but has to simulate jumping and gravity.
+
+  // The player’s vertical speed (ySpeed) is first accelerated to account for gravity.
+  let ySpeed = this.speed.y + time * GRAVITY;
+
+  let movedY = pos.plus(new Vec(0, ySpeed * time));
+
+  // Check for walls
+  if (!state.level.touches(movedY, this.size, 'wall')) {
+    pos = movedY;
+
+    // When the up arrow is pressed and we are moving down (meaning the thing 
+    // we hit is below us), the speed is set to a relatively large, negative value.
+  } else if (keys.ArrowUp && ySpeed > 0) {
+    ySpeed = -JUMP_SPEED;
+
+    // If that is not the case, the player simply bumped into 
+    // something, and the speed is set to zero.
+  } else {
+    ySpeed = 0;
+  }
+
+  return new Player(pos, new Vec(xSpeed, ySpeed));
+};
