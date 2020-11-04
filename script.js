@@ -668,6 +668,8 @@ async function runGame(plans, Display) {
   }
 }
 
+const MONSTER_SPEED = 4;
+
 class Monster {
   constructor(pos, speed) {
     this.pos = pos;
@@ -683,24 +685,22 @@ class Monster {
   }
 
   update(time, state) {
-    let newPos = this.pos.plus(this.speed.times(time));
+    let player = state.player;
+    let speed = (player.pos.x < this.pos.x ? -1 : 1) * time * MONSTER_SPEED;
+    let newPos = new Vec(this.pos.x + speed, this.pos.y);
 
-    if (!state.level.touches(newPos, this.size, 'wall')) {
-      return new Monster(newPos, this.speed);
+    if (state.level.touches(newPos, this.size, 'wall')) {
+      return this;
     } else {
-      return new Monster(this.pos, this.speed.times(-1));
+      return new Monster(newPos);
     }
   }
 
   collide(state) {
-    
-    let player = state.actors.find(a => a.type === 'player');
-    
-    let isAbove = player.pos.y + player.size.y < this.pos.y + .2; 
-    
-    let filtered = state.actors.filter(a => a !== this);
-
-    if (isAbove) {
+    let player = state.player;
+     
+    if (player.pos.y + player.size.y < this.pos.y + .5) {
+      let filtered = state.actors.filter(a => a !== this);
       return new State(state.level, filtered, state.status);
     } else {
       return new State(state.level, state.actors, 'lost');
