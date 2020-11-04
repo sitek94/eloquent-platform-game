@@ -243,7 +243,7 @@ class DOMDisplay {
     
     parent.appendChild(this.dom);
   }
-
+ 
   clear() { this.dom.remove(); }
 }
 
@@ -623,14 +623,24 @@ function runLevel(level, Display) {
   });
 }
 
+const START_LIVES = 3;
+
 async function runGame(plans, Display) {
+  let lives = START_LIVES;
+
   for (let level = 0; level < plans.length;) {
+    console.log(`Level: ${level + 1}, Lives: ${lives}`);
     let status = await runLevel(new Level(plans[level]), Display);
 
     if (status === 'won') level++;
-  }
+    else lives--;
 
-  console.log(`You've won!`);
+    if (lives > 0) {
+      console.log(`You've won!`);
+    } else {
+      console.log('Game over');
+    }
+  }
 }
 
 runGame(GAME_LEVELS, DOMDisplay);
