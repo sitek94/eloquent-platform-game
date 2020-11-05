@@ -426,6 +426,21 @@ CanvasDisplay.prototype.updateViewport = function(state) {
   }
 };
 
+// When clearing the display, we’ll use a slightly different color depending 
+// on whether the game is won (brighter) or lost (darker).
+CanvasDisplay.prototype.clearDisplay = function(status) {
+  if (status === 'won') {
+    this.cx.fillStyle = 'rgb(68, 191, 255)';
+  } else if (status === 'lost') {
+    this.cx.fillStyle = 'rgb(44, 136, 214)';
+  } else {
+    this.cx.fillStyle = 'rgb(52, 166, 251)';
+  }
+  this.cx.fillRect(0, 0, 
+                   this.canvas.width, this.canvas.height);
+}
+
+
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
