@@ -393,6 +393,16 @@ class CanvasDisplay {
   }
 }
 
+// Contrary to DOMDisplay, this display style does have to redraw the background 
+// on every update. Because shapes on a canvas are just pixels, after we draw them 
+// there is no good way to move them (or remove them).
+CanvasDisplay.prototype.syncState = function(state) {
+  this.updateViewport(state);
+  this.clearDisplay(state.status);
+  this.drawBackground(state.level);
+  this.drawActors(state.actors);
+}
+
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
