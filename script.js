@@ -12,8 +12,9 @@ let simpleLevelPlan = `
 ......#++++++++++++#..
 ......##############..
 ......................`;
-
+/* ==================================================================== */
 /* ========================= READING A LEVEL ========================== */
+/* ==================================================================== */
 class Level {
   constructor(plan) {
     // Rows of the plan
@@ -75,8 +76,9 @@ class State {
   }
 }
 
-
-/* ========================= ACTORS ========================== */
+/* ========================================================================= */
+/* =============================== ACTORS ================================== */
+/* ========================================================================= */
 
 /* VEC - creates two-dimensional vector */
 class Vec {
@@ -97,7 +99,7 @@ class Vec {
   }
 }
 
-/* PLAYER */
+/* =============================== PLAYER ================================== */
 class Player {
   constructor(pos, speed) {
     this.pos = pos;
@@ -124,7 +126,7 @@ class Player {
 // we store it on its prototype
 Player.prototype.size = new Vec(0.8, 1.5);
 
-/* LAVA */
+/* =============================== LAVA ================================== */
 class Lava {
   constructor(pos, speed, reset) {
     this.pos = pos;
@@ -151,7 +153,7 @@ class Lava {
 
 Lava.prototype.size = new Vec(1, 1);
 
-/* COIN */
+/* =============================== COIN ================================== */
 class Coin {
   // To liven up the game a little, coins are given `wobble` property,
   // a slight vertical back-and-forth motion.
@@ -190,6 +192,48 @@ class Coin {
 
 Coin.prototype.size = new Vec(0.6, 0.6);
 
+/* ================================= MONSTER =============================== */
+const MONSTER_SPEED = 4;
+
+class Monster {
+  constructor(pos, speed) {
+    this.pos = pos;
+  }
+
+  get type() {
+    return 'monster';
+  }
+
+  static create(pos) {
+    return new Monster(pos.plus(new Vec(0, -1)), new Vec(2, 0));
+  }
+
+  update(time, state) {
+    let player = state.player;
+    let speed = (player.pos.x < this.pos.x ? -1 : 1) * time * MONSTER_SPEED;
+    let newPos = new Vec(this.pos.x + speed, this.pos.y);
+
+    if (state.level.touches(newPos, this.size, 'wall')) {
+      return this;
+    } else {
+      return new Monster(newPos);
+    }
+  }
+
+  collide(state) {
+    let player = state.player;
+     
+    if (player.pos.y + player.size.y < this.pos.y + .5) {
+      let filtered = state.actors.filter(a => a !== this);
+      return new State(state.level, filtered, state.status);
+    } else {
+      return new State(state.level, state.actors, 'lost');
+    }
+  }
+}
+
+Monster.prototype.size = new Vec(1.2, 2);
+
 /* LEVEL CHARACTERS */
 const levelChars = {
   // Empty space
@@ -201,17 +245,20 @@ const levelChars = {
   // Player's starting position
   '@': Player,
   // Coins
-  o: Coin,
+  'o': Coin,
   // Block of lava that moves back and forth horizontally
   '=': Lava,
   // Vertically moving blobs
   '|': Lava,
   // Dripping lava - vertically moving lava that doesn’t bounce back and forth but only
   // moves down, jumping back to its start position when it hits the floor.
-  v: Lava,
+  'v': Lava,
+  'M': Monster,
 };
 
-/* ========================= DRAWING ========================== */
+/* ================================================================ */
+/* ========================= DOM DISPLAY ========================== */
+/* ================================================================ */
 
 // A helper function that provides a succinct way to create an element
 // and givi it some attributes and child nodes
@@ -472,7 +519,9 @@ CanvasDisplay.prototype.drawBackground = function(level) {
   }
 };
 
+/* ========================================================================= */
 /* ========================= MOTION AND COLLISION ========================== */
+/* ========================================================================= */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
 // touches a grid element of the given type.
@@ -566,8 +615,9 @@ Coin.prototype.collide = function(state) {
   return new State(state.level, filtered, status);
 }
 
-
+/* ================================================================== */
 /* ========================= ACTOR UPDATES ========================== */
+/* ================================================================== */
 
 // Lava update
 Lava.prototype.update = function(time, state) {
@@ -662,8 +712,9 @@ Player.prototype.update = function(time, state, keys) {
   return new Player(pos, new Vec(xSpeed, ySpeed));
 };
 
-
+/* ================================================================== */
 /* ========================= TRACKING KEYS ========================== */
+/* ================================================================== */
 
 function trackKeys(keys) {
   let down = Object.create(null);
@@ -690,7 +741,9 @@ function trackKeys(keys) {
   return down;
 }
 
+/* ===================================================================== */
 /* ========================= RUNNING THE GAME ========================== */
+/* ===================================================================== */
 
 function runAnimation(frameFunc) {
   let lastTime = null;
@@ -780,49 +833,5 @@ async function runGame(plans, Display) {
     }
   }
 }
-
-const MONSTER_SPEED = 4;
-
-class Monster {
-  constructor(pos, speed) {
-    this.pos = pos;
-  }
-
-  get type() {
-    return 'monster';
-  }
-
-  static create(pos) {
-    return new Monster(pos.plus(new Vec(0, -1)), new Vec(2, 0));
-  }
-
-  update(time, state) {
-    let player = state.player;
-    let speed = (player.pos.x < this.pos.x ? -1 : 1) * time * MONSTER_SPEED;
-    let newPos = new Vec(this.pos.x + speed, this.pos.y);
-
-    if (state.level.touches(newPos, this.size, 'wall')) {
-      return this;
-    } else {
-      return new Monster(newPos);
-    }
-  }
-
-  collide(state) {
-    let player = state.player;
-     
-    if (player.pos.y + player.size.y < this.pos.y + .5) {
-      let filtered = state.actors.filter(a => a !== this);
-      return new State(state.level, filtered, state.status);
-    } else {
-      return new State(state.level, state.actors, 'lost');
-    }
-  }
-}
-
-
-Monster.prototype.size = new Vec(1.2, 2);
-
-levelChars['M'] = Monster;
 
 runGame(GAME_LEVELS, DOMDisplay);
