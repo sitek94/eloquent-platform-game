@@ -359,6 +359,40 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
   // screen where you can move around without causing any scrolling.
 };
 
+/* =================================================================== */
+/* ========================= CANVAS DISPLAY ========================== */
+/* =================================================================== */
+
+class CanvasDisplay {
+  constructor(parent, level) {q
+    this.canvas = document.createElement('canvas');
+
+    this.canvas.width = Math.min(600, level.width * SCALE);
+    this.canvas.height = Math.min(450, level.height * SCALE);
+
+    parent.appendChild(this.canvas);
+
+    this.cx = this.canvas.getContext('2d');
+
+    // Keep a flipPlayer property so that even when the player is standing still, 
+    // it keeps facing the direction it last moved in.
+    this.flipPlayer = false;
+
+    // Rather than using the scroll position of its DOM element, it tracks its 
+    // own viewport, which tells us what part of the level we are currently looking at.
+    this.viewport = {
+      left: 0,
+      top: 0,
+      width: this.canvas.width / SCALE,
+      height: this.canvas.height / SCALE,
+    }
+  }
+
+  clear() {
+    this.canvas.remove();
+  }
+}
+
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
