@@ -440,6 +440,9 @@ CanvasDisplay.prototype.clearDisplay = function(status) {
                    this.canvas.width, this.canvas.height);
 }
 
+// It contains, the wall tile, the lava tile, and the sprite for a coin.
+let otherSprites = document.createElement('img');
+otherSprites.src = 'img/sprites.png';
 
 /* ========================= MOTION AND COLLISION ========================== */
 
