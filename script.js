@@ -403,6 +403,29 @@ CanvasDisplay.prototype.syncState = function(state) {
   this.drawActors(state.actors);
 }
 
+// The updateViewport method is similar to DOMDisplay’s scrollPlayerIntoView method. 
+// It checks whether the player is too close to the edge of the screen and moves
+//  the viewport when this is the case.
+CanvasDisplay.prototype.updateViewport = function(state) {
+  let view = this.viewport, margin = view.width / 3;
+  let player = state.player;
+  let center = player.pos.plus(player.size.times(0.5));
+
+  if (center.x < view.left + margin) {
+    view.left = Math.max(center.x - margin, 0);
+  } else if (center.x > view.left + view.width - margin) {
+    view.left = Math.min(center.x + margin - view.width,
+                         state.level.width - view.width);
+  }
+
+  if (center.y < view.top + margin) {
+    view.top = Math.max(center.y - margin, 0);
+  } else if (center.y > view.top + view.height - margin) {
+    view.top = Math.min(center.y + margin - view.height,
+                         state.level.height - view.height);
+  }
+};
+
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
