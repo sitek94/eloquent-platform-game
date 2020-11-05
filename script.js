@@ -444,6 +444,34 @@ CanvasDisplay.prototype.clearDisplay = function(status) {
 let otherSprites = document.createElement('img');
 otherSprites.src = 'img/sprites.png';
 
+// To draw the background, we run through the tiles that are visible in the current viewport.
+CanvasDisplay.prototype.drawBackground = function(level) {
+  let { left, top, width, height } = this.viewport;
+
+  let xStart = Math.floor(left);
+  let xEnd = Math.ceil(left + width);
+  let yStart = Math.floor(top);
+  let yEnd = Math.ceil(top + height);
+
+  for (let y = yStart; y < yEnd; y++) {
+    for (let x = xStart; x < xEnd; x++) {
+      let tile = level.rows[y][x];
+
+      if (tile === 'empty') continue;
+
+      let screenX = (x - left) * SCALE;
+      let screenY = (y - top) * SCALE;
+
+      let tileX = tile === 'lava' ? scale : 0;
+
+      // Tiles that are not empty are drawn with drawImage.
+      this.cx.drawImage(otherSprites,
+                        tileX,         0, SCALE, SCALE,
+                        screenX, screenY, SCALE, SCALE);
+    }
+  }
+};
+
 /* ========================= MOTION AND COLLISION ========================== */
 
 // This method tells us whether a rectangle (specified by a position and a size) 
