@@ -524,6 +524,43 @@ CanvasDisplay.prototype.drawBackground = function(level) {
 let playerSprites = document.createElement('img');
 playerSprites.src = 'img/player.png';
 
+// Because the sprites are slightly wider than the player object—24 instead of 16 pixels
+// to allow some space for feet and arms—the method has to adjust the x-coordinate and width 
+// by a given amount (PLAYER_X_OVERLAP).
+const PLAYER_X_OVERLAP = 4;
+
+CanvasDisplay.prototype.drawPlayer = function(player, x, y, width, height) {
+  width += PLAYER_X_OVERLAP * 2;
+  x -= PLAYER_X_OVERLAP;
+
+  if (player.speed.x !== 0) {
+    this.flipPlayer = player.speed.x < 0;
+  }
+
+  let tile = 8;
+  if (player.speed.y !== 0) {
+    tile = 9;
+  } else if (player.speed.x !== 0) {
+    tile = Math.floor(Date.now() / 60) % 8;
+  }
+
+  this.cx.save();
+  if (this.flipPlayer) {
+    flipHorizontally(this.cx, x + width / 2);
+  }
+
+  let tileX = tile * width;
+  this.cx.drawImage(playerSprites, tileX, 0, width, height,
+                                   x,     y, width, height);
+  this.cx.restore();
+}
+
+function flipHorizontally(context, around) {
+  context.translate(around, 0);
+  context.scale(-1, 1);
+  context.translate(-around, 0);
+}
+
 
 
 /* ========================================================================= */
