@@ -561,6 +561,24 @@ function flipHorizontally(context, around) {
   context.translate(-around, 0);
 }
 
+CanvasDisplay.prototype.drawActors = function(actors) {
+  for (let actor of actors) {
+    let width = actor.size.x * SCALE;
+    let height = actor.size.y * SCALE;
+    let x = (actor.pos.x - this.viewport.left) * SCALE;
+    let y = (actor.pos.y - this.viewport.top) * SCALE;
+
+    if (actor.type === 'player') {
+      this.drawPlayer(actor, x, y, width, height);
+    } else {
+      let tileX = (actor.type === 'coin' ? 2 : 1) * SCALE;
+
+      this.cx.drawImage(otherSprites,
+                        tileX, 0, width, height,
+                        x,     y, width, height);
+    }
+  }
+}
 
 
 /* ========================================================================= */
