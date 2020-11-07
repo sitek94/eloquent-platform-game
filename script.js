@@ -411,7 +411,7 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
 /* =================================================================== */
 
 class CanvasDisplay {
-  constructor(parent, level) {q
+  constructor(parent, level) {
     this.canvas = document.createElement('canvas');
 
     this.canvas.width = Math.min(600, level.width * SCALE);
@@ -487,6 +487,7 @@ CanvasDisplay.prototype.clearDisplay = function(status) {
                    this.canvas.width, this.canvas.height);
 }
 
+/* ========================= OTHER SPRITES ========================== */
 // It contains, the wall tile, the lava tile, and the sprite for a coin.
 let otherSprites = document.createElement('img');
 otherSprites.src = 'img/sprites.png';
@@ -509,7 +510,7 @@ CanvasDisplay.prototype.drawBackground = function(level) {
       let screenX = (x - left) * SCALE;
       let screenY = (y - top) * SCALE;
 
-      let tileX = tile === 'lava' ? scale : 0;
+      let tileX = tile === 'lava' ? SCALE : 0;
 
       // Tiles that are not empty are drawn with drawImage.
       this.cx.drawImage(otherSprites,
@@ -518,6 +519,12 @@ CanvasDisplay.prototype.drawBackground = function(level) {
     }
   }
 };
+
+/* ========================= PLAYER SPRITES ========================== */
+let playerSprites = document.createElement('img');
+playerSprites.src = 'img/player.png';
+
+
 
 /* ========================================================================= */
 /* ========================= MOTION AND COLLISION ========================== */
@@ -834,4 +841,4 @@ async function runGame(plans, Display) {
   }
 }
 
-runGame(GAME_LEVELS, DOMDisplay);
+runGame(GAME_LEVELS, CanvasDisplay);
